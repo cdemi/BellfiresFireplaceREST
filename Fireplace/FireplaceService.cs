@@ -31,16 +31,21 @@ namespace Fireplace
 
         public void TurnOn()
         {
-            if (!client.Connected)
-                connect();
-            networkStream.Write(onBytes, 0, onBytes.Length);
+            writeToSocket(onBytes);
+
         }
 
         public void TurnOff()
         {
+            writeToSocket(offBytes);
+        }
+
+        private void writeToSocket(byte[] data)
+        {
             if (!client.Connected)
                 connect();
-            networkStream.Write(offBytes, 0, offBytes.Length);
+
+            networkStream.Write(data, 0, data.Length);
         }
 
         private static byte[] StringToByteArray(string hex)
