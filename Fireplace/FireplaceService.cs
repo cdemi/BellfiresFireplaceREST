@@ -14,21 +14,32 @@ namespace Fireplace
         private NetworkStream networkStream;
         const string on = "0233303330333033303830314103";
         const string off = "0233303330333033303830313003";
+        private readonly IPAddress fireplaceIP;
         byte[] onBytes = StringToByteArray(on);
         byte[] offBytes = StringToByteArray(off);
         public FireplaceService(IConfiguration config)
         {
-            client.Connect(IPAddress.Parse(config.GetValue<string>("FireplaceIP")), 2000);
+            fireplaceIP = IPAddress.Parse(config.GetValue<string>("FireplaceIP"));
+            connect();
+        }
+
+        private void connect()
+        {
+            client.Connect(fireplaceIP, 2000);
             networkStream = client.GetStream();
         }
 
         public void TurnOn()
         {
+            if (!client.Connected)
+                connect();
             networkStream.Write(onBytes, 0, onBytes.Length);
         }
 
         public void TurnOff()
         {
+            if (!client.Connected)
+                connect();
             networkStream.Write(offBytes, 0, offBytes.Length);
         }
 
