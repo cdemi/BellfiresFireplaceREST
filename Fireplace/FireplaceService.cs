@@ -11,7 +11,7 @@ namespace Fireplace
 {
     public class FireplaceService : IDisposable
     {
-        TcpClient client;
+        TcpClient client = new TcpClient();
         private NetworkStream networkStream;
         const string on = "0233303330333033303830314103";
         const string off = "0233303330333033303830313003";
@@ -22,18 +22,10 @@ namespace Fireplace
         public FireplaceService(IConfiguration config, ILogger<FireplaceService> logger)
         {
             fireplaceIP = IPAddress.Parse(config.GetValue<string>("FireplaceIP"));
-            connect();
             this.logger = logger;
-        }
-
-        private void connect()
-        {
             logger.LogInformation("Connecting to Fireplace");
-            client?.Close();
-            client = new TcpClient();
             client.Connect(fireplaceIP, 2000);
-            networkStream = client.GetStream();
-
+            networkStream = client.GetStream(); 
         }
 
         public void TurnOn()
@@ -50,17 +42,9 @@ namespace Fireplace
 
         private void writeToSocket(byte[] data)
         {
-            if (!client.Connected)
-                connect();
-
-            try
+            for (int i = 0; i < 3; i++)
             {
                 networkStream.Write(data, 0, data.Length);
-            }
-            catch (System.IO.IOException)
-            {
-                logger.LogWarning("Unable to communicate to Fireplace");
-                writeToSocket(data);
             }
         }
 
@@ -74,8 +58,10 @@ namespace Fireplace
 
         public void Dispose()
         {
+            client?.Close();
             ((IDisposable)networkStream).Dispose();
             ((IDisposable)client).Dispose();
+            logger.LogInformation("Disposed Fireplace Service");
         }
     }
 }
