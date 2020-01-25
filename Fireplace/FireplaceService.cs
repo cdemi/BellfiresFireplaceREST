@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Fireplace
 {
-    public class FireplaceService
+    public class FireplaceService : IDisposable
     {
         TcpClient client;
         private NetworkStream networkStream;
@@ -33,7 +33,7 @@ namespace Fireplace
             client = new TcpClient();
             client.Connect(fireplaceIP, 2000);
             networkStream = client.GetStream();
-            
+
         }
 
         public void TurnOn()
@@ -70,6 +70,12 @@ namespace Fireplace
                              .Where(x => x % 2 == 0)
                              .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
                              .ToArray();
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)networkStream).Dispose();
+            ((IDisposable)client).Dispose();
         }
     }
 }
