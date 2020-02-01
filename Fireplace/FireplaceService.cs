@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fireplace
@@ -42,9 +43,10 @@ namespace Fireplace
 
         private void writeToSocket(byte[] data)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 5; i++)
             {
                 networkStream.Write(data, 0, data.Length);
+                Thread.Sleep(200);
             }
         }
 
